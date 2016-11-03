@@ -11,6 +11,7 @@ exception NotImplemented
 (*********************)
 (*     Problem 1     *)
 (*********************)
+(*
 module Problem1 = struct
   type aexp = 
   | Const of int
@@ -43,10 +44,10 @@ let example = Sum [Power ("x", 2); Times [Const 2; Var "x"]; Const 1];;
 diff (example, "x");;
 let yaho = Sum [Power ("y", 3); Power ("x", 2)];;
 diff (yaho, "x");;
+*)
 
 
 
-(*
 (*********************)
 (*     Problem 2     *)
 (*********************)
@@ -58,10 +59,36 @@ module Problem2 = struct
   and length = int
   and weight = int
 
-  let balanced : mobile -> bool
-  = fun mob -> raise NotImplemented (* TODO *)
+  let rec weightSum : mobile -> int
+  = fun mob ->
+     match mob with
+     | (SimpleBranch (l1, w1), SimpleBranch (l2, w2)) -> w1 + w2
+     | (CompoundBranch (l1, sub_mob1), SimpleBranch (l2, w2)) -> weightSum(sub_mob1) + w2
+     | (SimpleBranch (l1, w1), CompoundBranch (l2, sub_mob2)) -> w1 + weightSum(sub_mob2)
+     | (CompoundBranch (l1, sub_mob1), CompoundBranch (l2, sub_mob2)) -> weightSum(sub_mob1) + weightSum(sub_mob2);;
+
+  let rec balanced : mobile -> bool
+  = fun mob ->
+     match mob with
+     | (SimpleBranch (l1, w1), SimpleBranch (l2, w2)) -> if l1 * w1 == l2 * w2 then true else false
+     | (CompoundBranch (l1, sub_mob1), SimpleBranch (l2, w2)) -> if balanced sub_mob1 && l1 * weightSum(sub_mob1) == l2 *w2 then true else false
+     | (SimpleBranch (l1, w1), CompoundBranch (l2, sub_mob2)) -> if balanced sub_mob2 && l1 * w1 == l2 * weightSum(sub_mob2) then true else false
+     | (CompoundBranch (l1, sub_mob1), CompoundBranch (l2, sub_mob2)) -> if balanced sub_mob1 && balanced sub_mob2 && l1 * weightSum(sub_mob1) == l2 * weightSum(sub_mob2) then true else false
 end
 
+open Problem2
+let easy = (SimpleBranch (1, 4), CompoundBranch(2, (SimpleBranch(1, 1), SimpleBranch (1, 1))));;
+weightSum easy;;
+weightSum(SimpleBranch(1, 1), SimpleBranch (1, 1));;
+balanced easy;;
+let exam_2 = (CompoundBranch (3,
+  (CompoundBranch (2, (SimpleBranch (1, 1), SimpleBranch (1, 1))),
+     SimpleBranch (1, 4))),
+      SimpleBranch (6, 3));;
+balanced exam_2;;
+
+
+(*
 (*********************)
 (*     Problem 3     *)
 (*********************)
