@@ -1,3 +1,5 @@
+open Printf
+
 (*
   1. You can modify the given function specifications as recursive.
   2. Do not modify the function names or types.
@@ -17,10 +19,34 @@ module Problem1 = struct
   | Times of aexp list
   | Sum of aexp list
 
-  let diff : aexp * string -> aexp
-  = fun (exp, var) -> raise NotImplemented (* TODO *)
+  let rec diff : aexp * string -> aexp
+  = fun (exp, var) -> 
+          match exp with
+          | Const n -> Const 0
+          | Var v -> if v = var then Const 1 else Var v
+          | Power (v, n) -> if v = var then Times [Const n; Power (v, n-1)] else Const 0
+          | Times li -> 
+            begin match li with
+              | [] -> Const 0
+              | hd::tl -> Const 1
+            end
+          | Sum li -> 
+            begin match li with 
+              | [] -> Const 0
+              | hd::tl -> Sum [diff (hd, var); diff (Sum tl, var)]
+            end;;
+
 end
 
+open Problem1
+let example = Sum [Power ("x", 2); Times [Const 2; Var "x"]; Const 1];;
+diff (example, "x");;
+let yaho = Sum [Power ("y", 3); Power ("x", 2)];;
+diff (yaho, "x");;
+
+
+
+(*
 (*********************)
 (*     Problem 2     *)
 (*********************)
@@ -67,3 +93,4 @@ module Problem4 = struct
   = fun exp -> raise NotImplemented (* TODO *)
 end
 
+*)
